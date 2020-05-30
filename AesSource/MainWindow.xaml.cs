@@ -20,9 +20,40 @@ namespace AesSource
     /// </summary>
     public partial class MainWindow : Window
     {
+        AesController aesController;
         public MainWindow()
         {
             InitializeComponent();
+            aesController = new AesController();
+        }
+
+        private void Dec_Click(object sender, RoutedEventArgs e)
+        {
+            var decText = WillDecryptText.Text;
+            var keyText = KeyText.Text;
+
+            if(keyText==null || keyText.Length==0)
+            {
+                keyText = "This is my key";
+                KeyText.Text = keyText;
+            }
+            var genericResponse = aesController.Decrypt(decText, keyText);
+            Result.Text = genericResponse.ResultValue;
+
+        }
+
+        private void Enc_Click(object sender, RoutedEventArgs e)
+        {
+            var encText = WillEncryptText.Text;
+            var keyText = KeyText.Text;
+
+            if (keyText == null || keyText.Length == 0)
+            {
+                keyText = "This is my key";
+                KeyText.Text = keyText;
+            }
+            var genericResponse = aesController.Encrypt(encText, keyText);
+            Result.Text = genericResponse.ResultValue;
         }
     }
 }
