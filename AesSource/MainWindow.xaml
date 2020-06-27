@@ -7,22 +7,35 @@
         mc:Ignorable="d"
         Title="AES Encryptor Decryptor" Height="350" Width="500">
     <Grid>
-        <TextBox  Name="WillEncryptText" Background="Cyan" MaxLength="30" Margin="22,10,198,264"/>
+        <TextBox  Name="WillEncryptTexttxt" Text="{Binding Path=WillEncryptText, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Background="Cyan" MaxLength="16" Margin="22,10,198,264"/>
         <Label Content="Encrypt Text" HorizontalAlignment="Left" Margin="22,0,0,423" VerticalAlignment="Bottom" Height="40" Width="127" FontSize="20"/>
-        <TextBox x:Name="WillDecryptText" Background="Cyan" MaxLength="30" Margin="22,60,198,217" />
+        <TextBox x:Name="WillDecryptText_txtbox" Text="{Binding Path=WillDecryptText, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Background="Cyan" MaxLength="30" Margin="22,60,198,217" />
         <Label Content="Decrypt Text" HorizontalAlignment="Left" Margin="22,0,0,378" VerticalAlignment="Bottom" Height="40" Width="127" FontSize="20"/>
         <Button x:Name="Enc" Content="Encrypt&#xD;&#xA;" HorizontalAlignment="Left" Margin="327,9,0,0" VerticalAlignment="Top" Width="135" Height="47" FontSize="20" Click="Enc_Click"/>
         <Button x:Name="Dec" Content="Decrypt" HorizontalAlignment="Left" Margin="327,61,0,0" VerticalAlignment="Top" Width="135" Height="41" FontSize="20" Click="Dec_Click"/>
         <Label Content="Result : " HorizontalAlignment="Left" Margin="22,230,0,0" VerticalAlignment="Top" Height="40" Width="66" FontSize="16"/>
-        <TextBox x:Name="Result" Text="" HorizontalAlignment="Left" Margin="93,224,0,0" VerticalAlignment="Top" Height="46" Width="369" FontSize="20" Background="#FF5483D4" Foreground="White">
+        <TextBox x:Name="Result_txtbox" IsReadOnly="True"  Text="{Binding Path=Result, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Margin="93,224,0,0" VerticalAlignment="Top" Height="46" Width="369" FontSize="20" Foreground="White">
             <TextBox.BorderBrush>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="Black" Offset="0"/>
                     <GradientStop Color="#FF935353" Offset="1"/>
                 </LinearGradientBrush>
             </TextBox.BorderBrush>
+            <TextBox.Style>
+                <Style>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsErrorOccured}" Value="true">
+                            <Setter Property="TextBox.Background" Value="Red"/>
+                            <Setter Property="TextBox.FontSize" Value="10"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsErrorOccured}" Value="false">
+                            <Setter Property="TextBox.Background" Value="#FF5483D4"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBox.Style>
         </TextBox>
         <Label Content="Key : " HorizontalAlignment="Left" Margin="22,148,0,0" VerticalAlignment="Top" Height="40" Width="66" FontSize="16"/>
-        <TextBox IsReadOnly="True" x:Name="KeyText" Background="Cyan" MaxLength="30" Margin="93,146,30,131" />
+        <TextBox Text="{Binding Path=Key, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  x:Name="KeyTexttxt" Background="Cyan" MaxLength="16" Margin="93,146,30,131" />
     </Grid>
 </Window>

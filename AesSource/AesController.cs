@@ -20,30 +20,38 @@ namespace AesSource
         public GenericResult<string> Encrypt(string targetText, string keyText)
         {
             var genericResult = new GenericResult<string>();
-            byte[] targetTextBytes = Encoding.ASCII.GetBytes(targetText);
-            byte[] targetKeyBytes = Encoding.ASCII.GetBytes(keyText);
-            fillEmptyBytes(ref targetKeyBytes);
-            fillEmptyBytes(ref targetTextBytes);
-            byte[] targetBlock = new byte[16];
-            byte[] keyBlock = new byte[16];
-            Array.Copy(targetTextBytes, 0, targetBlock, 0, 16);
-            Array.Copy(targetKeyBytes, 0, keyBlock, 0, 16);
+            try
+            {                
+                byte[] targetTextBytes = Encoding.ASCII.GetBytes(targetText);
+                byte[] targetKeyBytes = Encoding.ASCII.GetBytes(keyText);
+                fillEmptyBytes(ref targetKeyBytes);
+                fillEmptyBytes(ref targetTextBytes);
+                byte[] targetBlock = new byte[16];
+                byte[] keyBlock = new byte[16];
+                Array.Copy(targetTextBytes, 0, targetBlock, 0, 16);
+                Array.Copy(targetKeyBytes, 0, keyBlock, 0, 16);
 
-            addRoundKey(ref targetBlock, keyBlock);
-            for (int roundCounter = 0; roundCounter < 9; roundCounter++)
-            {
+                addRoundKey(ref targetBlock, keyBlock);
+                for (int roundCounter = 0; roundCounter < 9; roundCounter++)
+                {
+                    subsituteBytes(ref targetBlock);
+                    shiftRows(ref targetBlock, Direction.Left);
+                    mixColumns(ref targetBlock);
+                    getNextRoundKey(ref keyBlock, roundCounter);
+                    addRoundKey(ref targetBlock, keyBlock);
+                }
+
                 subsituteBytes(ref targetBlock);
                 shiftRows(ref targetBlock, Direction.Left);
-                mixColumns(ref targetBlock);
-                getNextRoundKey(ref keyBlock, roundCounter);
+                getNextRoundKey(ref keyBlock, 9);
                 addRoundKey(ref targetBlock, keyBlock);
+                genericResult.ResultValue = Convert.ToBase64String(targetBlock);
             }
-
-            subsituteBytes(ref targetBlock);
-            shiftRows(ref targetBlock, Direction.Left);
-            getNextRoundKey(ref keyBlock, 9);
-            addRoundKey(ref targetBlock, keyBlock);
-            genericResult.ResultValue= Convert.ToBase64String(targetBlock);            
+            catch (Exception ex)
+            {
+                genericResult.Errors.Add(ex.ToString());
+                return genericResult;
+            }
             return genericResult;
         }
 
@@ -51,33 +59,44 @@ namespace AesSource
         {
 
             var genericResult = new GenericResult<string>();
-            byte[] targetTextBytes = Convert.FromBase64String(targetText);                        
-            byte[] targetKeyBytes = Encoding.ASCII.GetBytes(keyText);
-            fillEmptyBytes(ref targetKeyBytes);
-            fillEmptyBytes(ref targetTextBytes);
-            byte[] targetBlock = new byte[16];
-            byte[] keyBlock = new byte[16];
-            Array.Copy(targetTextBytes, 0, targetBlock, 0, 16);
-            Array.Copy(targetKeyBytes, 0, keyBlock, 0, 16);
-            var initialKey = new byte[16];
-            Array.Copy(keyBlock, initialKey,16);
-            var allRoundKeyList = getAllRoundKeyList(keyBlock);
+            try
+            {                
+                byte[] targetTextBytes = Convert.FromBase64String(targetText);
+                byte[] targetKeyBytes = Encoding.ASCII.GetBytes(keyText);
+                fillEmptyBytes(ref targetKeyBytes);
+                fillEmptyBytes(ref targetTextBytes);
+                byte[] targetBlock = new byte[16];
+                byte[] keyBlock = new byte[16];
+                Array.Copy(targetTextBytes, 0, targetBlock, 0, 16);
+                Array.Copy(targetKeyBytes, 0, keyBlock, 0, 16);
+                var initialKey = new byte[16];
+                Array.Copy(keyBlock, initialKey, 16);
+                var allRoundKeyList = getAllRoundKeyList(keyBlock);
 
-            addRoundKey(ref targetBlock,allRoundKeyList[9]);
-            shiftRows(ref targetBlock, Direction.Right);
-            subsituteBytes(ref targetBlock, Constants.InverseSBox);
-
-            for (int roundCounter = 8; roundCounter >= 0; roundCounter--)
-            {
-                addRoundKey(ref targetBlock, allRoundKeyList[roundCounter]);
-                inverseMixColumn(ref targetBlock);
+                addRoundKey(ref targetBlock, allRoundKeyList[9]);
                 shiftRows(ref targetBlock, Direction.Right);
-                subsituteBytes(ref targetBlock,Constants.InverseSBox);                
+                subsituteBytes(ref targetBlock, Constants.InverseSBox);
+
+                for (int roundCounter = 8; roundCounter >= 0; roundCounter--)
+                {
+                    addRoundKey(ref targetBlock, allRoundKeyList[roundCounter]);
+                    inverseMixColumn(ref targetBlock);
+                    shiftRows(ref targetBlock, Direction.Right);
+                    subsituteBytes(ref targetBlock, Constants.InverseSBox);
+                }
+
+                addRoundKey(ref targetBlock, initialKey);
+
+                genericResult.ResultValue = Encoding.ASCII.GetString(targetBlock);
+
+            }
+            catch (Exception ex)
+            {                
+                genericResult.Errors.Add(ex.ToString());
+                return genericResult;
             }
 
-            addRoundKey(ref targetBlock, initialKey);
 
-            genericResult.ResultValue = Encoding.ASCII.GetString(targetBlock);
             return genericResult;
         }
 

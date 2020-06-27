@@ -13,7 +13,15 @@ namespace AesSource
         private List<string> errors;
         public List<string> Errors
         {
-            get; set;
+            get {
+                return errors;
+            }
+            set {
+                if(errors != value)
+                {
+                    errors = value;
+                }
+            }
         }
         public Boolean IsSuccess
         {
